@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "16280212211",
+    "project_id": "internal-tool-420",
+    "storage_bucket": "internal-tool-420.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16280212211:android:453dffeae1648a463c9d86",
+        "android_client_info": {
+          "package_name": "com.example.internal_tool"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_XoL-yOwqW7YvaDw8ud1q75nkB6anz7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
