@@ -28,11 +28,13 @@ class CustomizeButton extends StatelessWidget {
   const CustomizeButton({
     super.key,
     this.onPressed,
+    this.borderColor,
     required this.title,
     required this.bgColor,
     required this.fontColor,
   });
   final Function()? onPressed;
+  final Color? borderColor;
   final String title;
   final Color bgColor;
   final Color fontColor;
@@ -47,6 +49,8 @@ class CustomizeButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: bgColor,
+          side:
+              BorderSide(color: borderColor ?? Colors.transparent, width: 0.1),
         ),
         onPressed: onPressed,
         child: Text(

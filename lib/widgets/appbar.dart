@@ -17,3 +17,42 @@ customAppBar(String title) {
     centerTitle: true,
   );
 }
+
+class HomeAppBar extends StatefulWidget {
+  const HomeAppBar({super.key});
+
+  @override
+  State<HomeAppBar> createState() => _HomeAppBarState();
+}
+
+class _HomeAppBarState extends State<HomeAppBar> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: Row(
+        children: [
+          Container(
+            height: 60,
+            width: 60,
+            // margin: const EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(color: lightGrey, shape: BoxShape.circle),
+          ),
+          Container(
+            height: 60,
+            width: 60,
+            margin: const EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(color: lightGrey, shape: BoxShape.circle),
+          ),
+          Container(
+            height: 60,
+            width: 60,
+            margin: const EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(color: lightGrey, shape: BoxShape.circle),
+          ),
+        ],
+      ),
+    );
+  }
+}
