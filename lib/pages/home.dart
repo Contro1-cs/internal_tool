@@ -130,11 +130,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //controller
   final TextEditingController _noticeController = TextEditingController();
+
   //bool
   bool _loading = true;
+
   //String
-  String _name = '';
   String _username = '';
+
+  //List
+  List _friends = [];
 
   fetchData() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -144,8 +148,8 @@ class _HomePageState extends State<HomePage> {
     if (user.exists) {
       Map<String, dynamic> data = user.data() as Map<String, dynamic>;
       setState(() {
-        _name = data["name"].toString().split(" ").first;
         _username = data["username"].toString().split(" ").first;
+        _friends = data["friends"];
       });
     }
     fetchNotice();
@@ -351,7 +355,9 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const HomeAppBar(),
+                      HomeAppBar(
+                        friends: _friends,
+                      ),
                       const SizedBox(height: 10),
                       noticeBoard(),
                     ],
