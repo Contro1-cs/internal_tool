@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/colors.dart';
@@ -30,6 +32,20 @@ class HomeAppBar extends StatefulWidget {
 }
 
 class _HomeAppBarState extends State<HomeAppBar> {
+  //String
+  String _pfp = '';
+
+  //bool
+  bool _pfpLoading = true;
+  getpfp() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    final ref = FirebaseStorage.instance.ref().child(uid).child('pfp.png');
+    final url = await ref.getDownloadURL();
+    setState(() {
+      _pfp = url;
+    });
+  }
+
   userProfile(String name) {
     return Container(
       height: 60,
@@ -52,20 +68,54 @@ class _HomeAppBarState extends State<HomeAppBar> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getpfp();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(color: Colors.transparent),
-      child: SizedBox(
-        height: 60,
-        width: 200,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: widget.friends.length,
-          itemBuilder: (context, index) {
-            return userProfile(widget.friends[index]);
-          },
-        ),
+      child: Row(
+        children: [
+          //Your pfp
+          Container(
+            height: 60,
+            width: 60,
+            margin: const EdgeInsets.only(left: 10),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: yellow,
+              shape: BoxShape.circle,
+            ),
+            child: _pfp.isEmpty
+                ? const CircularProgressIndicator()
+                : Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: ClipOval(
+                      child: Image(
+                        image: NetworkImage(_pfp),
+                      ),
+                    ),
+                  ),
+          ),
+
+          //Friends
+          Expanded(
+            child: SizedBox(
+              height: 60,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.friends.length,
+                itemBuilder: (context, index) {
+                  return userProfile(widget.friends[index]);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
