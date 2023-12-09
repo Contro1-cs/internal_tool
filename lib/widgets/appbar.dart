@@ -36,6 +36,7 @@ class HomeAppBar extends StatefulWidget {
 class _HomeAppBarState extends State<HomeAppBar> {
   //String
   String _pfp = '';
+  String _name = '';
 
   //bool
   bool _pfpLoading = true;
@@ -43,17 +44,35 @@ class _HomeAppBarState extends State<HomeAppBar> {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     final ref = FirebaseStorage.instance.ref().child(uid).child('pfp.png');
     final url = await ref.getDownloadURL();
+
+    DocumentSnapshot<Map<String, dynamic>> snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (snapshot.exists) {
+      _name = snapshot.data()!['username'].toString().split(".").first;
+    } else {
+      print("Document does not exist");
+    }
+
     setState(() {
       _pfp = url;
     });
   }
 
   userProfile(String imgUrl, String friendUid) {
+    String name = '';
+    if (friendUid.startsWith("qZPUmET6haaobfRC6IiiZi8tjQr1")) {
+      name = "Pxp";
+    } else if (friendUid.startsWith("fw32D23IdahGIKFqb4aVk5tZfeN2")) {
+      name = "Pxd";
+    }
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           width: 60,
-          margin: const EdgeInsets.only(left: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 10),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: yellow,
@@ -76,6 +95,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
                     ),
                   ),
                 ),
+        ),
+        Text(
+          name,
+          style: GoogleFonts.inter(color: white),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -106,45 +130,62 @@ class _HomeAppBarState extends State<HomeAppBar> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(color: Colors.transparent),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           //Your pfp
-          Container(
-            height: 60,
-            width: 60,
-            margin: const EdgeInsets.only(left: 10),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: yellow,
-              shape: BoxShape.circle,
-            ),
-            child: _pfp.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: _pfp,
-                        placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 0.5,
+          Column(
+            children: [
+              Container(
+                height: 60,
+                width: 60,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: yellow,
+                  shape: BoxShape.circle,
+                ),
+                child: _pfp.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : Padding(
+                        padding: const EdgeInsets.all(1),
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: _pfp,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 0.5,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
                         ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
                       ),
-                    ),
-                  ),
+              ),
+              Text(
+                _name,
+                style: GoogleFonts.inter(color: white),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-
+          Container(
+            height: 40,
+            width: 1,
+            margin: const EdgeInsets.only(left: 10),
+            color: yellow,
+          ),
           //Friends
           Expanded(
-            child: SizedBox(
+            child: Container(
+              alignment: Alignment.centerLeft,
+              height: 80,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: widget.friends.length,
                 itemBuilder: (context, index) {
                   String friendUid = widget.friends[index];
-
                   return FutureBuilder(
                     future: _getImageUrl(friendUid),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
