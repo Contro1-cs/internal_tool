@@ -4,16 +4,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internal_tool/pages/friendsNotice.dart';
 import 'package:internal_tool/widgets/colors.dart';
+import 'package:internal_tool/widgets/transitions.dart';
 
 customAppBar(String title) {
   return AppBar(
-    backgroundColor: white,
+    backgroundColor: black,
     automaticallyImplyLeading: true,
+    iconTheme: IconThemeData(color: white),
     title: Text(
       title,
       style: GoogleFonts.inter(
-        color: Colors.black,
+        color: white,
         fontWeight: FontWeight.bold,
         fontSize: 16,
       ),
@@ -39,7 +42,6 @@ class _HomeAppBarState extends State<HomeAppBar> {
   String _name = '';
 
   //bool
-  bool _pfpLoading = true;
   getpfp() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     final ref = FirebaseStorage.instance.ref().child(uid).child('pfp.png');
@@ -66,42 +68,47 @@ class _HomeAppBarState extends State<HomeAppBar> {
     } else if (friendUid.startsWith("fw32D23IdahGIKFqb4aVk5tZfeN2")) {
       name = "Pxd";
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 60,
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: yellow,
-            shape: BoxShape.circle,
-          ),
-          child: imgUrl.isEmpty
-              ? const SizedBox()
-              : Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: imgUrl,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 0.5,
+    return GestureDetector(
+      onTap: () {
+        slideUpTransition(context, FriendsNoticePage(friendUid: friendUid));
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 60,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: yellow,
+              shape: BoxShape.circle,
+            ),
+            child: imgUrl.isEmpty
+                ? const SizedBox()
+                : Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: imgUrl,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 0.5,
+                          ),
                         ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
                     ),
                   ),
-                ),
-        ),
-        Text(
-          name,
-          style: GoogleFonts.inter(color: white),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          ),
+          Text(
+            name,
+            style: GoogleFonts.inter(color: white),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -169,12 +176,6 @@ class _HomeAppBarState extends State<HomeAppBar> {
                 textAlign: TextAlign.center,
               ),
             ],
-          ),
-          Container(
-            height: 40,
-            width: 1,
-            margin: const EdgeInsets.only(left: 10),
-            color: yellow,
           ),
           //Friends
           Expanded(
