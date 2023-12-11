@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/pages/board/board_widget.dart';
 import 'package:internal_tool/pages/board/boards.dart';
+import 'package:internal_tool/pages/board/edit_board.dart';
 import 'package:internal_tool/pages/notice.dart';
 import 'package:internal_tool/pages/profile.dart';
 import 'package:internal_tool/widgets/appbar.dart';
@@ -14,6 +15,8 @@ import 'package:internal_tool/widgets/buttons.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/progress.dart';
 import 'package:intl/intl.dart';
+
+import '../widgets/transitions.dart';
 
 class BotNavBar extends StatefulWidget {
   const BotNavBar({super.key});
@@ -204,6 +207,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    //other
+    var w = MediaQuery.of(context).size.width;
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
     String formatDate(String inputDate) {
       DateTime dateTime = DateFormat('dd-MM-yyyy').parse(inputDate);
       String outputDate = DateFormat('dd MMM yy').format(dateTime);
@@ -380,19 +387,62 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Row(
-                        children: [
-                          BoardWidget(
-                            title: "Research",
-                            tasks: ["task#1, tas#2"],
-                          ),
-                          SizedBox(width: 10),
-                          BoardWidget(
-                            title: "College",
-                            tasks: ["task#11, tas#12"],
-                          ),
-                        ],
-                      )
+                      SizedBox(
+                        width: w,
+                        height: w,
+                        child: FutureBuilder(
+                          future: FirebaseFirestore.instance
+                              .collection("boards")
+                              .doc(uid)
+                              .collection("tasks")
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.done &&
+                                snapshot.hasData) {
+                              List documents = snapshot.data!.docs;
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: GridView.builder(
+                                  itemCount: 2,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 10,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    //Inputs
+                                    String title = documents[index]["todo"]
+                                            ["mainTitle"] ??
+                                        "Error";
+                                    bool bookmark = documents[index]["todo"]
+                                            ["status"] ??
+                                        false;
+                                    List tasks =
+                                        documents[index]["todo"]["tasks"];
+
+                                    return MainBoardWidget(
+                                      title: title,
+                                      bookmark: bookmark,
+                                      tasks: tasks,
+                                      onTap: () => mainSlideTransition(
+                                        context,
+                                        const EditBoard(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
