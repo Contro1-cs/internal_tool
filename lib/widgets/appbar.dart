@@ -10,18 +10,17 @@ import 'package:internal_tool/widgets/transitions.dart';
 
 customAppBar(String title) {
   return AppBar(
-    backgroundColor: black,
+    backgroundColor: bgBlack,
     automaticallyImplyLeading: true,
     iconTheme: IconThemeData(color: white),
     title: Text(
       title,
       style: GoogleFonts.inter(
         color: white,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        fontSize: 20,
       ),
     ),
-    centerTitle: true,
   );
 }
 

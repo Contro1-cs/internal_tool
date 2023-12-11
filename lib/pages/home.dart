@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internal_tool/pages/board/board_widget.dart';
 import 'package:internal_tool/pages/board/boards.dart';
 import 'package:internal_tool/pages/notice.dart';
 import 'package:internal_tool/pages/profile.dart';
@@ -29,7 +30,7 @@ class _BotNavBarState extends State<BotNavBar> {
   List pages = [
     const HomePage(),
     const BoardsPage(),
-    const NoticePage(),
+    const Calendar(),
     const ProfilePage(),
   ];
   @override
@@ -50,6 +51,13 @@ class _BotNavBarState extends State<BotNavBar> {
         height: 70,
         margin: const EdgeInsets.fromLTRB(15, 0, 15, 8),
         decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: white.withOpacity(0.1),
+              spreadRadius: 0,
+              blurRadius: 5,
+            )
+          ],
           borderRadius: BorderRadius.circular(20),
           color: const Color(0xff353535),
         ),
@@ -360,6 +368,31 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 10),
                       noticeBoard(),
+                      const SizedBox(height: 40),
+                      Center(
+                        child: Text(
+                          "Pinned Boards",
+                          style: GoogleFonts.inter(
+                            color: white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Row(
+                        children: [
+                          BoardWidget(
+                            title: "Research",
+                            tasks: ["task#1, tas#2"],
+                          ),
+                          SizedBox(width: 10),
+                          BoardWidget(
+                            title: "College",
+                            tasks: ["task#11, tas#12"],
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
