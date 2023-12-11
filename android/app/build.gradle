@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id("com.google.gms.google-services")
 }
 
 def localProperties = new Properties()
@@ -68,5 +69,8 @@ flutter {
 apply plugin: 'com.google.gms.google-services'
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
+    implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0' 
+
+
 }

@@ -7,3 +7,5 @@ Color darkGrey = const Color(0xffA8A8A8);
 Color primary = const Color(0xff2F195F);
 Color bgBlack = const Color(0xff171717);
 Color yellow = const Color(0xffFFEA79);
+Color pink = const Color(0xffFF9AE9);
+Color maroon = const Color(0xff51003F);
