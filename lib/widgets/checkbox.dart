@@ -26,13 +26,14 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
     Color color = widget.color;
     Color tickcolor = widget.tickcolor;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
+    return IconButton(
+      onPressed: onTap,
+      icon: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
+        curve: Curves.elasticIn,
         height: 20,
         width: 20,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        margin: const EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
           color: check ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(100),

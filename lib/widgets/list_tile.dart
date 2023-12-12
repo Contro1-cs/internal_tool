@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/checkbox.dart';
 import 'package:internal_tool/widgets/colors.dart';
+import 'package:internal_tool/widgets/snackbars.dart';
 
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     super.key,
     required this.color,
     required this.tickColor,
+    required this.check,
     required this.controller,
+    this.focusNode,
   });
   final Color color;
   final Color tickColor;
+  final bool check;
   final TextEditingController controller;
+  final FocusNode? focusNode;
 
   @override
   State<TodoListTile> createState() => _TodoListTileState();
@@ -20,17 +25,19 @@ class TodoListTile extends StatefulWidget {
 
 class _TodoListTileState extends State<TodoListTile> {
   //bool
-  bool check = false;
   @override
   Widget build(BuildContext context) {
     Color color = widget.color;
+    bool check = widget.check;
     Color tickColor = widget.tickColor;
+
     TextEditingController controller = widget.controller;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: boardCyan.withOpacity(0.2),
+        color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -50,6 +57,7 @@ class _TodoListTileState extends State<TodoListTile> {
           Expanded(
             child: TextField(
               controller: controller,
+              focusNode: widget.focusNode,
               keyboardType: TextInputType.text,
               cursorColor: color,
               scrollPhysics: const NeverScrollableScrollPhysics(),
@@ -57,7 +65,7 @@ class _TodoListTileState extends State<TodoListTile> {
               decoration: InputDecoration(
                 counterText: '',
                 border: InputBorder.none,
-                hintText: 'Note',
+                hintText: 'New Task',
                 hintStyle: GoogleFonts.inter(
                   color: lightGrey,
                   fontSize: 16,
@@ -73,6 +81,16 @@ class _TodoListTileState extends State<TodoListTile> {
                 fontWeight: FontWeight.normal,
                 fontSize: 16,
               ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              successSnackbar(context, "clicked");
+            },
+            icon: Icon(
+              Icons.close_rounded,
+              size: 15,
+              color: color,
             ),
           )
         ],

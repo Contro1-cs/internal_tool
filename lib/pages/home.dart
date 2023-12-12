@@ -423,14 +423,16 @@ class _HomePageState extends State<HomePage> {
                                         false;
                                     List tasks =
                                         documents[index]["todo"]["tasks"];
-
                                     return MainBoardWidget(
                                       title: title,
                                       bookmark: bookmark,
                                       tasks: tasks,
                                       onTap: () => mainSlideTransition(
                                         context,
-                                        const EditBoard(),
+                                        EditBoard(
+                                          mainTitle: title,
+                                          tasks: tasks,
+                                        ),
                                       ),
                                     );
                                   },
