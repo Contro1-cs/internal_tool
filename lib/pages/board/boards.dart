@@ -29,12 +29,7 @@ class _BoardsPageState extends State<BoardsPage> {
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
             List documents = snapshot.data!.docs;
-            // return Center(
-            //   child: Text(
-            //     documents.length.toString(),
-            //     style: const TextStyle(color: Colors.white),
-            //   ),
-            // );
+
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: GridView.builder(
@@ -51,16 +46,11 @@ class _BoardsPageState extends State<BoardsPage> {
                   bool bookmark = documents[index]["todo"]["status"] ?? false;
                   List tasks = documents[index]["todo"]["tasks"];
 
-                  // return ListTile(
-                  //   title: Text(
-                  //     title,
-                  //     style: TextStyle(color: Colors.amber),
-                  //   ),
-                  // );
                   return MainBoardWidget(
                     title: title,
                     bookmark: bookmark,
                     tasks: tasks,
+                    onTap: () {},
                   );
                 },
               ),
