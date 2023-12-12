@@ -30,7 +30,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
       onPressed: onTap,
       icon: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        curve: Curves.elasticIn,
+        curve: Curves.linear,
         height: 20,
         width: 20,
         margin: const EdgeInsets.symmetric(vertical: 5),

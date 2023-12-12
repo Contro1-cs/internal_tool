@@ -423,6 +423,8 @@ class _HomePageState extends State<HomePage> {
                                         false;
                                     List tasks =
                                         documents[index]["todo"]["tasks"];
+                                    int length = tasks.length;
+                                    String docId = documents[index].id;
                                     return MainBoardWidget(
                                       title: title,
                                       bookmark: bookmark,
@@ -431,6 +433,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         EditBoard(
                                           mainTitle: title,
+                                          docId: docId,
                                           tasks: tasks,
                                         ),
                                       ),

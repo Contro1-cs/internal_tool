@@ -1,16 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internal_tool/models/todo_model.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/list_tile.dart';
+import 'package:internal_tool/widgets/snackbars.dart';
 
 class EditBoard extends StatefulWidget {
   const EditBoard({
     super.key,
     required this.mainTitle,
+    required this.docId,
     required this.tasks,
   });
   final String mainTitle;
+  final String docId;
   final List tasks;
 
   @override
@@ -19,6 +24,9 @@ class EditBoard extends StatefulWidget {
 
 class _EditBoardState extends State<EditBoard> {
   //others
+  TextEditingController newTaskController = TextEditingController();
+  List<TodoModel> todoModelList = [];
+  List<TextEditingController> contentController = [];
 
   //Color
   Color color = yellow;
@@ -42,9 +50,26 @@ class _EditBoardState extends State<EditBoard> {
     setState(() {});
   }
 
+  taskInit() {
+    contentController = List.generate(
+      widget.tasks.length,
+      (index) => TextEditingController(
+        text: widget.tasks[index]['taskTitle'],
+      ),
+    );
+    todoModelList = List.generate(
+      widget.tasks.length,
+      (index) => TodoModel(
+        widget.tasks[index]['taskTitle'],
+        widget.tasks[index]['status'],
+      ),
+    );
+  }
+
   @override
   void initState() {
     fetchColors();
+    taskInit();
 
     super.initState();
   }
@@ -53,15 +78,10 @@ class _EditBoardState extends State<EditBoard> {
   Widget build(BuildContext context) {
     //others
     final FocusNode focusNode2 = FocusNode();
-
-    //Lists
-    List<TextEditingController> contentController =
-        List.generate(widget.tasks.length, (index) => TextEditingController());
-    TextEditingController newTaskController = TextEditingController();
+    String uid = FirebaseAuth.instance.currentUser!.uid;
 
     //inherited var
     titleController.text = widget.mainTitle;
-    List tasks = widget.tasks;
 
     return Scaffold(
       backgroundColor: bgBlack,
@@ -69,133 +89,143 @@ class _EditBoardState extends State<EditBoard> {
         automaticallyImplyLeading: true,
         backgroundColor: primaryColor,
       ),
-      body: SingleChildScrollView(
-        controller: scrollController,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection("boards")
+            .doc(uid)
+            .collection("tasks")
+            .doc(widget.docId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-              //Title
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  hintStyle: GoogleFonts.inter(
-                    color: white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
-                  hintText: 'Untitled',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: primaryColor),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: primaryColor, width: 3),
-                  ),
-                ),
-                cursorColor: primaryColor,
-                textCapitalization: TextCapitalization.words,
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                ),
-              ),
-              const SizedBox(height: 20),
+          Map<String, dynamic> data =
+              snapshot.data!.data() as Map<String, dynamic>;
+          List tasks = data['todo']['tasks'];
 
-              //Colors
-              SizedBox(
-                height: 50.0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(colorList.length, (index) {
-                    String color = colorList[index]['code'];
-                    String fcolor = colorList[index]['fontColor'];
-                    Color bgColor =
-                        Color(int.parse(color, radix: 16)).withAlpha(0xFF);
-                    Color fontColor =
-                        Color(int.parse(fcolor, radix: 16)).withAlpha(0xFF);
-
-                    return GestureDetector(
-                      onTap: () => setState(() {
-                        primaryColor = bgColor;
-                        primaryFontColor = fontColor;
-                      }),
-                      child: Container(
-                        width: 50.0,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              //Tasks title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Column(
                 children: [
-                  Text(
-                    "Tasks",
+                  //Title
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintStyle: GoogleFonts.inter(
+                        color: white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                      ),
+                      hintText: 'Untitled',
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: primaryColor),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: primaryColor, width: 3),
+                      ),
+                    ),
+                    cursorColor: primaryColor,
+                    textCapitalization: TextCapitalization.words,
                     style: GoogleFonts.inter(
-                      color: white,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 30,
                     ),
                   ),
-                  IconButton(
-                      onPressed: () {
-                        FocusScope.of(context).requestFocus(focusNode2);
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          scrollController.animateTo(
-                            scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeIn,
-                          );
-                        });
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        Icons.add,
+                  const SizedBox(height: 20),
+                  //Colors
+                  SizedBox(
+                    height: 50.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(colorList.length, (index) {
+                        String color = colorList[index]['code'];
+                        String fcolor = colorList[index]['fontColor'];
+                        Color bgColor =
+                            Color(int.parse(color, radix: 16)).withAlpha(0xFF);
+                        Color fontColor =
+                            Color(int.parse(fcolor, radix: 16)).withAlpha(0xFF);
+
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            primaryColor = bgColor;
+                            primaryFontColor = fontColor;
+                          }),
+                          child: Container(
+                            width: 50.0,
+                            height: 50.0,
+                            decoration: BoxDecoration(
+                              color: bgColor,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  //Tasks title
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Tasks",
+                        style: GoogleFonts.inter(
+                          color: white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            FocusScope.of(context).requestFocus(focusNode2);
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              scrollController.animateTo(
+                                scrollController.position.maxScrollExtent,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeIn,
+                              );
+                            });
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            color: primaryColor,
+                          ))
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      return TodoListTile(
                         color: primaryColor,
-                      ))
+                        tickColor: primaryFontColor,
+                        check: todoModelList[index].status,
+                        controller: contentController[index],
+                        onChange: () {
+                          setState(() {
+                            todoModelList[index].status =
+                                !todoModelList[index].status;
+                          });
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
-              const SizedBox(height: 5),
-              // Tasks
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: contentController.length,
-                itemBuilder: (context, index) {
-                  TextEditingController controller = contentController[index];
-                  bool check = tasks[index]['status'];
-                  controller.text = tasks[index]['taskTitle'];
-                  return TodoListTile(
-                    color: primaryColor,
-                    tickColor: primaryFontColor,
-                    check: check,
-                    controller: controller,
-                  );
-                },
-              ),
-              TodoListTile(
-                color: primaryColor,
-                tickColor: primaryFontColor,
-                check: false,
-                controller: newTaskController,
-                focusNode: focusNode2,
-              )
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

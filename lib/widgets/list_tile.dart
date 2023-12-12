@@ -11,12 +11,14 @@ class TodoListTile extends StatefulWidget {
     required this.tickColor,
     required this.check,
     required this.controller,
+    required this.onChange,
     this.focusNode,
   });
   final Color color;
   final Color tickColor;
   final bool check;
   final TextEditingController controller;
+  final Function()? onChange;
   final FocusNode? focusNode;
 
   @override
@@ -30,6 +32,7 @@ class _TodoListTileState extends State<TodoListTile> {
     Color color = widget.color;
     bool check = widget.check;
     Color tickColor = widget.tickColor;
+    Function()? onChange = widget.onChange;
 
     TextEditingController controller = widget.controller;
     return Container(
@@ -45,15 +48,19 @@ class _TodoListTileState extends State<TodoListTile> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CustomCheckBox(
-            check: check,
-            onTap: () {
-              setState(() {
-                check = !check;
-              });
-            },
+            check: widget.check,
+            onTap: onChange,
             color: color,
             tickcolor: tickColor,
           ),
+          // Checkbox(
+          //   value: check,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       check = value!;
+          //     });
+          //   },
+          // ),
           Expanded(
             child: TextField(
               controller: controller,
