@@ -423,7 +423,8 @@ class _HomePageState extends State<HomePage> {
                                         false;
                                     List tasks =
                                         documents[index]["todo"]["tasks"];
-                                    int length = tasks.length;
+                                    String noteColor =
+                                        documents[index]["todo"]['noteColor'];
                                     String docId = documents[index].id;
                                     return MainBoardWidget(
                                       title: title,
@@ -435,6 +436,7 @@ class _HomePageState extends State<HomePage> {
                                           mainTitle: title,
                                           docId: docId,
                                           tasks: tasks,
+                                          noteColor: noteColor,
                                         ),
                                       ),
                                     );
