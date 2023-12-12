@@ -7,15 +7,17 @@ import 'package:internal_tool/widgets/snackbars.dart';
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     super.key,
-    required this.color,
+    required this.bgColor,
     required this.tickColor,
+    required this.noteColor,
     required this.check,
     required this.controller,
     required this.onChange,
     this.focusNode,
   });
-  final Color color;
+  final Color bgColor;
   final Color tickColor;
+  final Color noteColor;
   final bool check;
   final TextEditingController controller;
   final Function()? onChange;
@@ -29,12 +31,14 @@ class _TodoListTileState extends State<TodoListTile> {
   //bool
   @override
   Widget build(BuildContext context) {
-    Color color = widget.color;
+    Color color = widget.bgColor;
     bool check = widget.check;
     Color tickColor = widget.tickColor;
     Function()? onChange = widget.onChange;
-
     TextEditingController controller = widget.controller;
+
+    //function
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -53,14 +57,6 @@ class _TodoListTileState extends State<TodoListTile> {
             color: color,
             tickcolor: tickColor,
           ),
-          // Checkbox(
-          //   value: check,
-          //   onChanged: (value) {
-          //     setState(() {
-          //       check = value!;
-          //     });
-          //   },
-          // ),
           Expanded(
             child: TextField(
               controller: controller,

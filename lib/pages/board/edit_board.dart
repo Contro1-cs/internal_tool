@@ -5,17 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/models/todo_model.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/list_tile.dart';
-import 'package:internal_tool/widgets/snackbars.dart';
 
 class EditBoard extends StatefulWidget {
   const EditBoard({
     super.key,
     required this.mainTitle,
     required this.docId,
+    required this.noteColor,
     required this.tasks,
   });
   final String mainTitle;
   final String docId;
+  final String noteColor;
   final List tasks;
 
   @override
@@ -29,9 +30,8 @@ class _EditBoardState extends State<EditBoard> {
   List<TextEditingController> contentController = [];
 
   //Color
-  Color color = yellow;
-  Color primaryColor = boardCyan;
-  Color primaryFontColor = boardCyanFont;
+  Color primaryColor = lightGrey;
+  Color primaryFontColor = darkGrey;
 
   //controller
   TextEditingController titleController = TextEditingController();
@@ -40,28 +40,39 @@ class _EditBoardState extends State<EditBoard> {
   List<QueryDocumentSnapshot<Object?>> colorList = [];
 
   Future fetchColors() async {
-    QuerySnapshot colors =
-        await FirebaseFirestore.instance.collection("colors").get();
-    if (colors.docs.isNotEmpty) {
-      colorList = colors.docs;
+    CollectionReference colors =
+        FirebaseFirestore.instance.collection("colors");
+    QuerySnapshot allColors = await colors.get();
+
+    if (allColors.docs.isNotEmpty) {
+      colorList = allColors.docs;
     } else {
       colorList = [];
+    }
+    DocumentSnapshot colorDoc = await colors.doc(widget.noteColor).get();
+    if (colorDoc.exists) {
+      Map<String, dynamic> data = colorDoc.data() as Map<String, dynamic>;
+      primaryColor = Color(int.parse(data['code'], radix: 16)).withAlpha(0xFF);
+      primaryFontColor =
+          Color(int.parse(data['fontColor'], radix: 16)).withAlpha(0xFF);
     }
     setState(() {});
   }
 
-  taskInit() {
+  taskInit() async {
     contentController = List.generate(
       widget.tasks.length,
       (index) => TextEditingController(
         text: widget.tasks[index]['taskTitle'],
       ),
     );
+
     todoModelList = List.generate(
       widget.tasks.length,
       (index) => TodoModel(
         widget.tasks[index]['taskTitle'],
         widget.tasks[index]['status'],
+        boardCyan,
       ),
     );
   }
@@ -70,7 +81,6 @@ class _EditBoardState extends State<EditBoard> {
   void initState() {
     fetchColors();
     taskInit();
-
     super.initState();
   }
 
@@ -208,10 +218,11 @@ class _EditBoardState extends State<EditBoard> {
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
                       return TodoListTile(
-                        color: primaryColor,
+                        bgColor: primaryColor,
                         tickColor: primaryFontColor,
                         check: todoModelList[index].status,
                         controller: contentController[index],
+                        noteColor: todoModelList[index].noteColor,
                         onChange: () {
                           setState(() {
                             todoModelList[index].status =
