@@ -2,100 +2,102 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/checkbox.dart';
 import 'package:internal_tool/widgets/colors.dart';
-import 'package:internal_tool/widgets/snackbars.dart';
 
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     super.key,
-    required this.bgColor,
-    required this.tickColor,
-    required this.noteColor,
-    required this.check,
-    required this.controller,
-    required this.onChange,
+    required this.title,
+    required this.primaryColor,
+    required this.primaryFontColor,
+    required this.status,
     this.focusNode,
+    required this.onCheck,
+    required this.onDelete,
   });
-  final Color bgColor;
-  final Color tickColor;
-  final Color noteColor;
-  final bool check;
-  final TextEditingController controller;
-  final Function()? onChange;
+  final String title;
+  final Color primaryColor;
+  final Color primaryFontColor;
+  final bool status;
   final FocusNode? focusNode;
+  final Function()? onCheck;
+  final Function()? onDelete;
 
   @override
   State<TodoListTile> createState() => _TodoListTileState();
 }
 
 class _TodoListTileState extends State<TodoListTile> {
-  //bool
   @override
   Widget build(BuildContext context) {
-    Color color = widget.bgColor;
-    bool check = widget.check;
-    Color tickColor = widget.tickColor;
-    Function()? onChange = widget.onChange;
-    TextEditingController controller = widget.controller;
-
-    //function
+    //inherited var
+    Color primaryColor = widget.primaryColor;
+    Color primaryFontColor = widget.primaryFontColor;
+    bool status = widget.status;
+    TextEditingController contentController = TextEditingController();
+    contentController.text = widget.title;
+    Function()? onCheck = widget.onCheck;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 3.5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CustomCheckBox(
-            check: widget.check,
-            onTap: onChange,
-            color: color,
-            tickcolor: tickColor,
-          ),
           Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: widget.focusNode,
-              keyboardType: TextInputType.text,
-              cursorColor: color,
-              scrollPhysics: const NeverScrollableScrollPhysics(),
-              maxLength: 100,
-              decoration: InputDecoration(
-                counterText: '',
-                border: InputBorder.none,
-                hintText: 'New Task',
-                hintStyle: GoogleFonts.inter(
-                  color: lightGrey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
+            child: Row(
+              children: [
+                CustomCheckBox(
+                  check: status,
+                  onTap: onCheck,
+                  color: primaryFontColor,
+                  tickcolor: primaryColor,
                 ),
-              ),
-              style: GoogleFonts.inter(
-                decoration:
-                    check ? TextDecoration.lineThrough : TextDecoration.none,
-                decorationColor: color,
-                decorationThickness: 2,
-                color: Colors.white,
-                fontWeight: FontWeight.normal,
-                fontSize: 16,
-              ),
+                Expanded(
+                  child: TextField(
+                    controller: contentController,
+                    focusNode: widget.focusNode,
+                    keyboardType: TextInputType.text,
+                    cursorColor: primaryFontColor,
+                    scrollPhysics: const NeverScrollableScrollPhysics(),
+                    maxLength: 100,
+                    decoration: InputDecoration(
+                      counterText: '',
+                      border: InputBorder.none,
+                      hintText: 'New Task',
+                      hintStyle: GoogleFonts.inter(
+                        color: lightGrey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    style: GoogleFonts.inter(
+                      decoration: status
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
+                      decorationColor: primaryFontColor,
+                      decorationThickness: 2,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           IconButton(
-            onPressed: () {
-              successSnackbar(context, "clicked");
-            },
+            onPressed: widget.onDelete,
             icon: Icon(
-              Icons.close_rounded,
+              Icons.close,
               size: 15,
-              color: color,
+              color: primaryFontColor,
             ),
-          )
+          ),
         ],
       ),
     );

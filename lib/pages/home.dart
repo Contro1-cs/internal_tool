@@ -415,16 +415,16 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   itemBuilder: (context, index) {
                                     //Inputs
-                                    String title = documents[index]["todo"]
+                                    String title = documents[index]
                                             ["mainTitle"] ??
                                         "Error";
-                                    bool bookmark = documents[index]["todo"]
-                                            ["status"] ??
-                                        false;
-                                    List tasks =
-                                        documents[index]["todo"]["tasks"];
+                                    bool bookmark =
+                                        documents[index]["bookmark"] ?? false;
+                                    List tasks = documents[index]["tasks"];
+
                                     String noteColor =
-                                        documents[index]["todo"]['noteColor'];
+                                        documents[index]['noteColor'];
+
                                     String docId = documents[index].id;
                                     return MainBoardWidget(
                                       title: title,
@@ -433,9 +433,9 @@ class _HomePageState extends State<HomePage> {
                                       onTap: () => mainSlideTransition(
                                         context,
                                         EditBoard(
-                                          mainTitle: title,
+                                          // mainTitle: title,
                                           docId: docId,
-                                          tasks: tasks,
+                                          // tasks: tasks,
                                           noteColor: noteColor,
                                         ),
                                       ),
