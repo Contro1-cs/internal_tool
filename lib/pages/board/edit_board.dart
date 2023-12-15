@@ -1,87 +1,76 @@
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:internal_tool/models/todo_model.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/list_tile.dart';
-import 'package:internal_tool/widgets/snackbars.dart';
 
 class EditBoard extends StatefulWidget {
   const EditBoard({
     super.key,
-    required this.mainTitle,
+    required this.noteColor,
     required this.docId,
-    required this.tasks,
   });
-  final String mainTitle;
+  final String noteColor;
   final String docId;
-  final List tasks;
 
   @override
   State<EditBoard> createState() => _EditBoardState();
 }
 
 class _EditBoardState extends State<EditBoard> {
-  //others
-  TextEditingController newTaskController = TextEditingController();
-  List<TodoModel> todoModelList = [];
-  List<TextEditingController> contentController = [];
+  //List
+  List colorList = [];
 
-  //Color
-  Color color = yellow;
-  Color primaryColor = boardCyan;
-  Color primaryFontColor = boardCyanFont;
-
-  //controller
-  TextEditingController titleController = TextEditingController();
-  ScrollController scrollController = ScrollController();
-
-  List<QueryDocumentSnapshot<Object?>> colorList = [];
+  //Colors
+  Color primaryColor = lightGrey;
+  Color primaryFontColor = darkGrey;
 
   Future fetchColors() async {
-    QuerySnapshot colors =
-        await FirebaseFirestore.instance.collection("colors").get();
-    if (colors.docs.isNotEmpty) {
-      colorList = colors.docs;
+    CollectionReference colors =
+        FirebaseFirestore.instance.collection("colors");
+    QuerySnapshot allColors = await colors.get();
+
+    if (allColors.docs.isNotEmpty) {
+      colorList = allColors.docs;
     } else {
       colorList = [];
     }
+    DocumentSnapshot colorDoc = await colors.doc(widget.noteColor).get();
+    if (colorDoc.exists) {
+      Map<String, dynamic> data = colorDoc.data() as Map<String, dynamic>;
+      primaryColor = Color(int.parse(data['code'], radix: 16)).withAlpha(0xFF);
+      primaryFontColor =
+          Color(int.parse(data['fontColor'], radix: 16)).withAlpha(0xFF);
+    }
     setState(() {});
-  }
-
-  taskInit() {
-    contentController = List.generate(
-      widget.tasks.length,
-      (index) => TextEditingController(
-        text: widget.tasks[index]['taskTitle'],
-      ),
-    );
-    todoModelList = List.generate(
-      widget.tasks.length,
-      (index) => TodoModel(
-        widget.tasks[index]['taskTitle'],
-        widget.tasks[index]['status'],
-      ),
-    );
   }
 
   @override
   void initState() {
     fetchColors();
-    taskInit();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    //others
-    final FocusNode focusNode2 = FocusNode();
+    //other var
     String uid = FirebaseAuth.instance.currentUser!.uid;
+    TextEditingController titleController = TextEditingController();
+    ScrollController scrollController = ScrollController();
+    FocusNode focusNode = FocusNode();
 
     //inherited var
-    titleController.text = widget.mainTitle;
+
+    updateList(List taskList) {
+      FirebaseFirestore.instance
+          .collection('boards')
+          .doc(uid)
+          .collection('tasks')
+          .doc(widget.docId)
+          .update({'tasks': taskList});
+    }
 
     return Scaffold(
       backgroundColor: bgBlack,
@@ -97,6 +86,13 @@ class _EditBoardState extends State<EditBoard> {
             .doc(widget.docId)
             .snapshots(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: primaryColor,
+              ),
+            );
+          }
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -105,8 +101,8 @@ class _EditBoardState extends State<EditBoard> {
 
           Map<String, dynamic> data =
               snapshot.data!.data() as Map<String, dynamic>;
-          List tasks = data['todo']['tasks'];
-
+          List taskList = data['tasks'];
+          titleController.text = data['mainTitle'];
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -138,6 +134,7 @@ class _EditBoardState extends State<EditBoard> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
                   //Colors
                   SizedBox(
                     height: 50.0,
@@ -145,16 +142,12 @@ class _EditBoardState extends State<EditBoard> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(colorList.length, (index) {
                         String color = colorList[index]['code'];
-                        String fcolor = colorList[index]['fontColor'];
                         Color bgColor =
                             Color(int.parse(color, radix: 16)).withAlpha(0xFF);
-                        Color fontColor =
-                            Color(int.parse(fcolor, radix: 16)).withAlpha(0xFF);
 
                         return GestureDetector(
                           onTap: () => setState(() {
                             primaryColor = bgColor;
-                            primaryFontColor = fontColor;
                           }),
                           child: Container(
                             width: 50.0,
@@ -185,7 +178,7 @@ class _EditBoardState extends State<EditBoard> {
                       ),
                       IconButton(
                           onPressed: () {
-                            FocusScope.of(context).requestFocus(focusNode2);
+                            FocusScope.of(context).requestFocus(focusNode);
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               scrollController.animateTo(
                                 scrollController.position.maxScrollExtent,
@@ -193,7 +186,16 @@ class _EditBoardState extends State<EditBoard> {
                                 curve: Curves.easeIn,
                               );
                             });
-                            setState(() {});
+                            setState(() {
+                              List tempList = taskList;
+                              int randomNumber = Random().nextInt(10) + 1;
+
+                              tempList.add({
+                                'taskTitle': 'Task $randomNumber',
+                                'status': false
+                              });
+                              updateList(tempList);
+                            });
                           },
                           icon: Icon(
                             Icons.add,
@@ -205,18 +207,27 @@ class _EditBoardState extends State<EditBoard> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: tasks.length,
+                    itemCount: data['tasks'].length,
                     itemBuilder: (context, index) {
+                      String taskTitle = data['tasks'][index]['taskTitle'];
+                      bool status = data['tasks'][index]['status'];
                       return TodoListTile(
-                        color: primaryColor,
-                        tickColor: primaryFontColor,
-                        check: todoModelList[index].status,
-                        controller: contentController[index],
-                        onChange: () {
-                          setState(() {
-                            todoModelList[index].status =
-                                !todoModelList[index].status;
-                          });
+                        title: taskTitle,
+                        primaryColor: primaryColor,
+                        primaryFontColor: primaryFontColor,
+                        status: status,
+                        focusNode: index == data['tasks'].length - 1
+                            ? focusNode
+                            : null,
+                        onCheck: () {
+                          List tempList = taskList;
+                          tempList[index]['status'] = !status;
+                          updateList(tempList);
+                        },
+                        onDelete: () {
+                          List tempList = taskList;
+                          tempList.removeAt(index);
+                          updateList(tempList);
                         },
                       );
                     },

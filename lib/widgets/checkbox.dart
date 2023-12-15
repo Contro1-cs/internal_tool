@@ -28,9 +28,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
 
     return IconButton(
       onPressed: onTap,
-      icon: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.linear,
+      icon: Container(
         height: 20,
         width: 20,
         margin: const EdgeInsets.symmetric(vertical: 5),
