@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-void mainSlideTransition(BuildContext context, Widget page) {
+void mainSlideTransition(
+  BuildContext context,
+  Widget page,
+  Function(dynamic) then,
+) {
   Navigator.push(
     context,
     PageRouteBuilder(
@@ -21,7 +25,7 @@ void mainSlideTransition(BuildContext context, Widget page) {
       },
       transitionDuration: const Duration(milliseconds: 500),
     ),
-  );
+  ).then(then);
 }
 
 void slideUpTransition(BuildContext context, Widget page) {

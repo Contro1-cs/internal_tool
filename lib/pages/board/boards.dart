@@ -36,7 +36,7 @@ class _BoardsPageState extends State<BoardsPage> {
                 itemCount: documents.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 10,
+                  mainAxisSpacing: 100,
                   crossAxisSpacing: 10,
                 ),
                 itemBuilder: (context, index) {
@@ -46,12 +46,12 @@ class _BoardsPageState extends State<BoardsPage> {
                   bool bookmark = documents[index]["todo"]["status"] ?? false;
                   List tasks = documents[index]["todo"]["tasks"];
 
-                  return MainBoardWidget(
-                    title: title,
-                    bookmark: bookmark,
-                    tasks: tasks,
-                    onTap: () {},
-                  );
+                  // return MainBoardWidget(
+                  //   title: title,
+                  //   bookmark: bookmark,
+                  //   tasks: tasks,
+                  //   onTap: () {},
+                  // );
                 },
               ),
             );

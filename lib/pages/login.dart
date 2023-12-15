@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       }).then((value) {
         Navigator.popUntil(context, (route) => false);
-        mainSlideTransition(context, const BotNavBar());
+        mainSlideTransition(context, const BotNavBar(), (then){});
       });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

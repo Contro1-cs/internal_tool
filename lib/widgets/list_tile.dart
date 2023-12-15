@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/checkbox.dart';
@@ -6,21 +8,23 @@ import 'package:internal_tool/widgets/colors.dart';
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     super.key,
-    required this.title,
     required this.primaryColor,
     required this.primaryFontColor,
     required this.status,
+    required this.contentController,
     this.focusNode,
     required this.onCheck,
     required this.onDelete,
+    required this.onSubmitted,
   });
-  final String title;
   final Color primaryColor;
   final Color primaryFontColor;
   final bool status;
+  final TextEditingController contentController;
   final FocusNode? focusNode;
   final Function()? onCheck;
   final Function()? onDelete;
+  final Function(String)? onSubmitted;
 
   @override
   State<TodoListTile> createState() => _TodoListTileState();
@@ -33,9 +37,9 @@ class _TodoListTileState extends State<TodoListTile> {
     Color primaryColor = widget.primaryColor;
     Color primaryFontColor = widget.primaryFontColor;
     bool status = widget.status;
-    TextEditingController contentController = TextEditingController();
-    contentController.text = widget.title;
     Function()? onCheck = widget.onCheck;
+
+   
 
     return Container(
       width: double.infinity,
@@ -44,6 +48,13 @@ class _TodoListTileState extends State<TodoListTile> {
       decoration: BoxDecoration(
         color: primaryColor,
         borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: yellow.withOpacity(0.3),
+            spreadRadius: 3,
+            blurRadius: 8,
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,18 +70,19 @@ class _TodoListTileState extends State<TodoListTile> {
                 ),
                 Expanded(
                   child: TextField(
-                    controller: contentController,
+                    controller: widget.contentController,
                     focusNode: widget.focusNode,
                     keyboardType: TextInputType.text,
                     cursorColor: primaryFontColor,
+                    maxLines: null,
                     scrollPhysics: const NeverScrollableScrollPhysics(),
-                    maxLength: 100,
+                    maxLength: 69,
                     decoration: InputDecoration(
                       counterText: '',
                       border: InputBorder.none,
                       hintText: 'New Task',
                       hintStyle: GoogleFonts.inter(
-                        color: lightGrey,
+                        color: darkGrey,
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
                       ),
@@ -81,10 +93,11 @@ class _TodoListTileState extends State<TodoListTile> {
                           : TextDecoration.none,
                       decorationColor: primaryFontColor,
                       decorationThickness: 2,
-                      color: Colors.white,
+                      color: primaryFontColor,
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
+                    onSubmitted: widget.onSubmitted
                   ),
                 ),
               ],

@@ -14,9 +14,13 @@ import 'package:internal_tool/widgets/appbar.dart';
 import 'package:internal_tool/widgets/buttons.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/progress.dart';
+import 'package:internal_tool/widgets/snackbars.dart';
 import 'package:intl/intl.dart';
 
 import '../widgets/transitions.dart';
+
+//int
+int currentIndex = 0;
 
 class BotNavBar extends StatefulWidget {
   const BotNavBar({super.key});
@@ -26,9 +30,6 @@ class BotNavBar extends StatefulWidget {
 }
 
 class _BotNavBarState extends State<BotNavBar> {
-  //int
-  int _currentIndex = 0;
-
   //list
   List pages = [
     const HomePage(),
@@ -49,7 +50,7 @@ class _BotNavBarState extends State<BotNavBar> {
 
     return Scaffold(
       backgroundColor: bgBlack,
-      body: pages[_currentIndex],
+      body: pages[currentIndex],
       bottomNavigationBar: Container(
         height: 70,
         margin: const EdgeInsets.fromLTRB(15, 0, 15, 8),
@@ -71,10 +72,10 @@ class _BotNavBarState extends State<BotNavBar> {
             InkWell(
               onTap: () {
                 setState(() {
-                  _currentIndex = 0;
+                  currentIndex = 0;
                 });
               },
-              child: _currentIndex == 0
+              child: currentIndex == 0
                   ? navBarItem(
                       SvgPicture.asset("assets/home_selected.svg"),
                     )
@@ -86,11 +87,11 @@ class _BotNavBarState extends State<BotNavBar> {
             InkWell(
               onTap: () {
                 setState(() {
-                  _currentIndex = 1;
+                  currentIndex = 1;
                 });
               },
               child: navBarItem(
-                _currentIndex == 1
+                currentIndex == 1
                     ? SvgPicture.asset("assets/boards_selected.svg")
                     : SvgPicture.asset("assets/boards_icon.svg"),
               ),
@@ -99,11 +100,11 @@ class _BotNavBarState extends State<BotNavBar> {
             InkWell(
               onTap: () {
                 setState(() {
-                  _currentIndex = 2;
+                  currentIndex = 2;
                 });
               },
               child: navBarItem(
-                _currentIndex == 2
+                currentIndex == 2
                     ? SvgPicture.asset("assets/calendar_selected.svg")
                     : SvgPicture.asset("assets/calendar_icon.svg"),
               ),
@@ -112,11 +113,11 @@ class _BotNavBarState extends State<BotNavBar> {
             InkWell(
               onTap: () {
                 setState(() {
-                  _currentIndex = 3;
+                  currentIndex = 3;
                 });
               },
               child: navBarItem(
-                _currentIndex == 3
+                currentIndex == 3
                     ? SvgPicture.asset(
                         "assets/person_icon.svg",
                         color: Colors.white,
@@ -203,6 +204,11 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     addNotice();
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    fetchData();
+    setState(() {});
   }
 
   @override
@@ -308,6 +314,13 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: yellow,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: yellow.withOpacity(0.3),
+              spreadRadius: 3,
+              blurRadius: 8,
+            )
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -404,8 +417,11 @@ class _HomePageState extends State<HomePage> {
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                                 child: GridView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: 2,
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
@@ -421,23 +437,21 @@ class _HomePageState extends State<HomePage> {
                                     bool bookmark =
                                         documents[index]["bookmark"] ?? false;
                                     List tasks = documents[index]["tasks"];
-
                                     String noteColor =
                                         documents[index]['noteColor'];
-
                                     String docId = documents[index].id;
                                     return MainBoardWidget(
                                       title: title,
                                       bookmark: bookmark,
+                                      color: noteColor,
                                       tasks: tasks,
                                       onTap: () => mainSlideTransition(
                                         context,
                                         EditBoard(
-                                          // mainTitle: title,
                                           docId: docId,
-                                          // tasks: tasks,
                                           noteColor: noteColor,
                                         ),
+                                        (value) => fetchData(),
                                       ),
                                     );
                                   },

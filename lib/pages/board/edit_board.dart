@@ -1,10 +1,10 @@
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/list_tile.dart';
+import 'package:internal_tool/widgets/snackbars.dart';
 
 class EditBoard extends StatefulWidget {
   const EditBoard({
@@ -22,6 +22,8 @@ class EditBoard extends StatefulWidget {
 class _EditBoardState extends State<EditBoard> {
   //List
   List colorList = [];
+  List contentController = [];
+  List taskList = [];
 
   //Colors
   Color primaryColor = lightGrey;
@@ -47,10 +49,26 @@ class _EditBoardState extends State<EditBoard> {
     setState(() {});
   }
 
+  updateList(List taskList) {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    FirebaseFirestore.instance
+        .collection('boards')
+        .doc(uid)
+        .collection('tasks')
+        .doc(widget.docId)
+        .update({'tasks': taskList});
+  }
+
   @override
   void initState() {
     fetchColors();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -62,15 +80,6 @@ class _EditBoardState extends State<EditBoard> {
     FocusNode focusNode = FocusNode();
 
     //inherited var
-
-    updateList(List taskList) {
-      FirebaseFirestore.instance
-          .collection('boards')
-          .doc(uid)
-          .collection('tasks')
-          .doc(widget.docId)
-          .update({'tasks': taskList});
-    }
 
     return Scaffold(
       backgroundColor: bgBlack,
@@ -101,9 +110,12 @@ class _EditBoardState extends State<EditBoard> {
 
           Map<String, dynamic> data =
               snapshot.data!.data() as Map<String, dynamic>;
-          List taskList = data['tasks'];
+          taskList = data['tasks'];
           titleController.text = data['mainTitle'];
+          contentController = List.generate(
+              taskList.length, (index) => TextEditingController());
           return SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Column(
@@ -146,9 +158,22 @@ class _EditBoardState extends State<EditBoard> {
                             Color(int.parse(color, radix: 16)).withAlpha(0xFF);
 
                         return GestureDetector(
-                          onTap: () => setState(() {
-                            primaryColor = bgColor;
-                          }),
+                          onTap: () {
+                            FirebaseFirestore.instance
+                                .collection("boards")
+                                .doc(uid)
+                                .collection("tasks")
+                                .doc(widget.docId)
+                                .update({
+                              'noteColor': colorList[index]['name']
+                            }).onError((error, stackTrace) =>
+                                    errorSnackbar(context, error.toString()));
+                            setState(() {
+                              primaryColor = bgColor;
+                            });
+
+                            // .doc(widget.docId)
+                          },
                           child: Container(
                             width: 50.0,
                             height: 50.0,
@@ -177,61 +202,70 @@ class _EditBoardState extends State<EditBoard> {
                         ),
                       ),
                       IconButton(
-                          onPressed: () {
-                            FocusScope.of(context).requestFocus(focusNode);
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              scrollController.animateTo(
-                                scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeIn,
-                              );
-                            });
-                            setState(() {
-                              List tempList = taskList;
-                              int randomNumber = Random().nextInt(10) + 1;
+                        onPressed: () {
+                          List tempList = taskList;
 
-                              tempList.add({
-                                'taskTitle': 'Task $randomNumber',
-                                'status': false
-                              });
-                              updateList(tempList);
-                            });
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            color: primaryColor,
-                          ))
+                          tempList.add({'taskTitle': '', 'status': false});
+                          updateList(tempList);
+                          scrollController.animateTo(
+                            scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeIn,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          color: primaryColor,
+                        ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 5),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: data['tasks'].length,
-                    itemBuilder: (context, index) {
-                      String taskTitle = data['tasks'][index]['taskTitle'];
-                      bool status = data['tasks'][index]['status'];
-                      return TodoListTile(
-                        title: taskTitle,
-                        primaryColor: primaryColor,
-                        primaryFontColor: primaryFontColor,
-                        status: status,
-                        focusNode: index == data['tasks'].length - 1
-                            ? focusNode
-                            : null,
-                        onCheck: () {
-                          List tempList = taskList;
-                          tempList[index]['status'] = !status;
-                          updateList(tempList);
-                        },
-                        onDelete: () {
-                          List tempList = taskList;
-                          tempList.removeAt(index);
-                          updateList(tempList);
-                        },
-                      );
-                    },
-                  ),
+                  taskList.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 50),
+                            child: Text(
+                              'No Tasks',
+                              style: GoogleFonts.inter(color: white),
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: data['tasks'].length,
+                          itemBuilder: (context, index) {
+                            contentController[index].text =
+                                data['tasks'][index]['taskTitle'];
+                            bool status = data['tasks'][index]['status'];
+                            return TodoListTile(
+                              contentController: contentController[index],
+                              primaryColor: primaryColor,
+                              primaryFontColor: primaryFontColor,
+                              status: status,
+                              focusNode: index == data['tasks'].length + 1
+                                  ? focusNode
+                                  : null,
+                              onCheck: () {
+                                List tempList = taskList;
+                                tempList[index]['status'] = !status;
+                                updateList(tempList);
+                              },
+                              onDelete: () {
+                                List tempList = taskList;
+                                tempList.removeAt(index);
+                                updateList(tempList);
+                              },
+                              onSubmitted: (task) {
+                                List tempList = taskList;
+                                tempList[index]['taskTitle'] =
+                                    contentController[index].text;
+                                updateList(tempList);
+                              },
+                            );
+                          },
+                        ),
                 ],
               ),
             ),
