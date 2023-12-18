@@ -85,19 +85,16 @@ class _HomeAppBarState extends State<HomeAppBar> {
             ),
             child: imgUrl.isEmpty
                 ? const SizedBox()
-                : Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: imgUrl,
-                        placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 0.5,
-                          ),
+                : ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: imgUrl,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 0.5,
                         ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
                       ),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
                   ),
           ),
@@ -153,19 +150,16 @@ class _HomeAppBarState extends State<HomeAppBar> {
                 ),
                 child: _pfp.isEmpty
                     ? const Center(child: CircularProgressIndicator())
-                    : Padding(
-                        padding: const EdgeInsets.all(1),
-                        child: ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: _pfp,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 0.5,
-                              ),
+                    : ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: _pfp,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 0.5,
                             ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
                           ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                         ),
                       ),
               ),

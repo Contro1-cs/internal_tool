@@ -25,13 +25,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Internal Tool',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
         ),
         useMaterial3: true,
       ),
-      home: userSignedin ? const BotNavBar() : const onBoardingPage(),
+      home: userSignedin ? const BotNavBar() : const OnBoardingPage(),
     );
   }
 }

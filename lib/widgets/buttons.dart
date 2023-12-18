@@ -9,13 +9,13 @@ b1Button(String title, Function()? onPressed) {
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: primary,
+        backgroundColor: boardCyan,
       ),
       onPressed: onPressed,
       child: Text(
         title,
         style: GoogleFonts.inter(
-          color: white,
+          color: black,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
@@ -29,15 +29,13 @@ class CustomizeButton extends StatelessWidget {
     super.key,
     this.onPressed,
     this.borderColor,
-    required this.title,
+    required this.child,
     required this.bgColor,
-    required this.fontColor,
   });
   final Function()? onPressed;
   final Color? borderColor;
-  final String title;
+  final Widget child;
   final Color bgColor;
-  final Color fontColor;
 
   @override
   Widget build(BuildContext context) {
@@ -45,23 +43,15 @@ class CustomizeButton extends StatelessWidget {
       height: 50,
       width: double.infinity,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: bgColor,
-          side:
-              BorderSide(color: borderColor ?? Colors.transparent, width: 0.1),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          title,
-          style: GoogleFonts.inter(
-            color: fontColor,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+          style: ElevatedButton.styleFrom(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            backgroundColor: bgColor,
+            side: BorderSide(
+                color: borderColor ?? Colors.transparent, width: 0.1),
           ),
-        ),
-      ),
+          onPressed: onPressed,
+          child: child),
     );
   }
 }

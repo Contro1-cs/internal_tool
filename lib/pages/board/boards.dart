@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internal_tool/pages/board/board_widget.dart';
+import 'package:internal_tool/pages/board/edit_board.dart';
 import 'package:internal_tool/widgets/appbar.dart';
 import 'package:internal_tool/widgets/colors.dart';
+import 'package:internal_tool/widgets/transitions.dart';
 
 class BoardsPage extends StatefulWidget {
   const BoardsPage({super.key});
@@ -16,8 +18,36 @@ class _BoardsPageState extends State<BoardsPage> {
   @override
   Widget build(BuildContext context) {
     String uid = FirebaseAuth.instance.currentUser!.uid;
+    addBoard() {
+      FirebaseFirestore.instance
+          .collection('boards')
+          .doc(uid)
+          .collection('tasks')
+          .add(
+        {
+          'bookmark': false,
+          'mainTitle': '',
+          'noteColor': 'cyan',
+          'tasks': [],
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: bgBlack,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: yellow,
+        onPressed: () {
+          setState(() {
+            addBoard();
+          });
+        },
+        child: Center(
+            child: Icon(
+          Icons.add,
+          color: black,
+        )),
+      ),
       appBar: customAppBar("All Boards"),
       body: FutureBuilder(
         future: FirebaseFirestore.instance
@@ -41,16 +71,25 @@ class _BoardsPageState extends State<BoardsPage> {
                 ),
                 itemBuilder: (context, index) {
                   //Inputs
-                  String title =
-                      documents[index]["todo"]["mainTitle"] ?? "Error";
-                  bool bookmark = documents[index]["todo"]["status"] ?? false;
-                  List tasks = documents[index]["todo"]["tasks"];
+                  String title = documents[index]["mainTitle"] ?? "Error";
+                  bool bookmark = documents[index]["bookmark"] ?? false;
+                  List tasks = documents[index]["tasks"];
+                  String noteColor = documents[index]["noteColor"];
+                  String docId = documents[index].id;
 
                   return MainBoardWidget(
                     title: title,
                     bookmark: bookmark,
+                    color: noteColor,
                     tasks: tasks,
-                    onTap: () {},
+                    onTap: () => mainSlideTransition(
+                      context,
+                      EditBoard(
+                        docId: docId,
+                        noteColor: noteColor,
+                      ),
+                      (value) => setState(() {}),
+                    ),
                   );
                 },
               ),
