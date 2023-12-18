@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: userSignedin ? const BotNavBar() : const onBoardingPage(),
+      home: userSignedin ? const BotNavBar() : const OnBoardingPage(),
     );
   }
 }

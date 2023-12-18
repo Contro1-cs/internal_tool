@@ -9,13 +9,13 @@ b1Button(String title, Function()? onPressed) {
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: primary,
+        backgroundColor: boardCyan,
       ),
       onPressed: onPressed,
       child: Text(
         title,
         style: GoogleFonts.inter(
-          color: white,
+          color: black,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
@@ -43,16 +43,15 @@ class CustomizeButton extends StatelessWidget {
       height: 50,
       width: double.infinity,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: bgColor,
-          side:
-              BorderSide(color: borderColor ?? Colors.transparent, width: 0.1),
-        ),
-        onPressed: onPressed,
-        child: child
-      ),
+          style: ElevatedButton.styleFrom(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            backgroundColor: bgColor,
+            side: BorderSide(
+                color: borderColor ?? Colors.transparent, width: 0.1),
+          ),
+          onPressed: onPressed,
+          child: child),
     );
   }
 }

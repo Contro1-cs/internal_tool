@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/pages/onboarding.dart';
 import 'package:internal_tool/widgets/appbar.dart';
@@ -148,6 +149,93 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
+    void confirmLogout(BuildContext context) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return Container(
+            padding: EdgeInsets.fromLTRB(
+              15,
+              20,
+              15,
+              max(MediaQuery.of(context).viewInsets.bottom + 20, 20),
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xffFCEEEE),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Confirm Logout?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: const Color(0xffAC0806),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomizeButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          bgColor: const Color(0xffFCEEEE),
+                          borderColor: red,
+                          child: Text(
+                            "No",
+                            style: GoogleFonts.inter(
+                              color: red,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: CustomizeButton(
+                          onPressed: () {
+                            FirebaseAuth.instance.signOut().then((value) {
+                              Navigator.popUntil(context, (route) => false);
+                              slideDownTransition(
+                                  context, const OnBoardingPage());
+                            });
+                          },
+                          bgColor: red,
+                          borderColor: black,
+                          child: Text(
+                            "Yes",
+                            style: GoogleFonts.inter(
+                              color: white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: bgBlack,
@@ -165,37 +253,70 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 15),
                   customTextField(context, 'Username', username, white),
                   const Expanded(child: SizedBox(height: 40)),
-                  CustomizeButton(
-                    onPressed: () => friendBottomSheet(context),
-                    bgColor: const Color(0xffE9EDEC),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.person_add_outlined,
-                          color: Color(0xff1C504B),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          "Add New Friend",
-                          style: GoogleFonts.inter(
-                            color: const Color(0xff1C504B),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 10,
+                        child: CustomizeButton(
+                          onPressed: () => friendBottomSheet(context),
+                          bgColor: const Color(0xffE9EDEC),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.person_add_outlined,
+                                color: Color(0xff1C504B),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "Add Friend",
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xff1C504B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        flex: 8,
+                        child: CustomizeButton(
+                          onPressed: () {
+                            String uid = FirebaseAuth.instance.currentUser!.uid;
+
+                            Clipboard.setData(ClipboardData(text: uid));
+                          },
+                          bgColor: const Color(0xffE9EDEC),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.copy_all_outlined,
+                                color: Color(0xff1C504B),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "My id",
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xff1C504B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   CustomizeButton(
-                    onPressed: () {
-                      FirebaseAuth.instance.signOut().then((value) {
-                        Navigator.popUntil(context, (route) => false);
-                        slideDownTransition(context, const onBoardingPage());
-                      });
-                    },
+                    onPressed: () => confirmLogout(context),
                     bgColor: const Color(0xffFCEEEE),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

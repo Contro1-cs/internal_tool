@@ -31,24 +31,25 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       )
-          .onError((error, stackTrace) {
-        if (error == 'user-not-found') {
+          .onError((FirebaseException error, stackTrace) {
+        if (error.code == 'user-not-found') {
           return errorSnackbar(context, 'No user found for that email');
-        } else if (error == 'wrong-password') {
+        } else if (error.code.toString() == 'wrong-password') {
           return errorSnackbar(context, 'Wrong password');
-        } else {
-          return errorSnackbar(context, error.toString());
+        } else if (error.code.toString() == 'network-request-fail') {
+          return errorSnackbar(context, 'Please check your internet');
+        } else if (error.code.toString() == 'invalid-credentials') {
+          errorSnackbar(context, 'Join the waitlist');
+        } else if (error.code.toString() == 'wrong-password') {
+          errorSnackbar(context, 'Wrong password');
         }
+        return errorSnackbar(context, error.code.toString());
       }).then((value) {
         Navigator.popUntil(context, (route) => false);
         mainSlideTransition(context, const BotNavBar(), (then) {});
       });
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        errorSnackbar(context, 'Join the waitlist');
-      } else if (e.code == 'wrong-password') {
-        errorSnackbar(context, 'Wrong password');
-      }
+      errorSnackbar(context, e.message.toString());
     }
   }
 

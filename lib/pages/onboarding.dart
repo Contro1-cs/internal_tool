@@ -4,18 +4,18 @@ import 'package:internal_tool/pages/login.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/transitions.dart';
 
-class onBoardingPage extends StatefulWidget {
-  const onBoardingPage({super.key});
+class OnBoardingPage extends StatefulWidget {
+  const OnBoardingPage({super.key});
 
   @override
-  State<onBoardingPage> createState() => _onBoardingPageState();
+  State<OnBoardingPage> createState() => _OnBoardingPageState();
 }
 
-class _onBoardingPageState extends State<onBoardingPage> {
+class _OnBoardingPageState extends State<OnBoardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: bgBlack,
       body: Column(
         children: [
           Expanded(
@@ -32,7 +32,7 @@ class _onBoardingPageState extends State<onBoardingPage> {
                     Text(
                       "Let's work together!",
                       style: GoogleFonts.inter(
-                        color: black,
+                        color: white,
                         fontWeight: FontWeight.w600,
                         fontSize: 18,
                       ),
@@ -41,7 +41,7 @@ class _onBoardingPageState extends State<onBoardingPage> {
                     Text(
                       "Tap anywhere to start",
                       style: GoogleFonts.inter(
-                        color: darkGrey,
+                        color: lightGrey,
                         fontWeight: FontWeight.normal,
                         fontSize: 10,
                       ),
