@@ -29,15 +29,13 @@ class CustomizeButton extends StatelessWidget {
     super.key,
     this.onPressed,
     this.borderColor,
-    required this.title,
+    required this.child,
     required this.bgColor,
-    required this.fontColor,
   });
   final Function()? onPressed;
   final Color? borderColor;
-  final String title;
+  final Widget child;
   final Color bgColor;
-  final Color fontColor;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +51,7 @@ class CustomizeButton extends StatelessWidget {
               BorderSide(color: borderColor ?? Colors.transparent, width: 0.1),
         ),
         onPressed: onPressed,
-        child: Text(
-          title,
-          style: GoogleFonts.inter(
-            color: fontColor,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: child
       ),
     );
   }

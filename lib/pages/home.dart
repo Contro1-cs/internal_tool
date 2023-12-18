@@ -1,26 +1,22 @@
 import 'dart:math';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/pages/board/board_widget.dart';
 import 'package:internal_tool/pages/board/boards.dart';
 import 'package:internal_tool/pages/board/edit_board.dart';
-import 'package:internal_tool/pages/notice.dart';
+import 'package:internal_tool/pages/calendar.dart';
 import 'package:internal_tool/pages/profile.dart';
 import 'package:internal_tool/widgets/appbar.dart';
 import 'package:internal_tool/widgets/buttons.dart';
 import 'package:internal_tool/widgets/colors.dart';
 import 'package:internal_tool/widgets/progress.dart';
-import 'package:internal_tool/widgets/snackbars.dart';
 import 'package:intl/intl.dart';
-
 import '../widgets/transitions.dart';
-
-//int
-int currentIndex = 0;
 
 class BotNavBar extends StatefulWidget {
   const BotNavBar({super.key});
@@ -30,6 +26,8 @@ class BotNavBar extends StatefulWidget {
 }
 
 class _BotNavBarState extends State<BotNavBar> {
+//int
+  int currentIndex = 0;
   //list
   List pages = [
     const HomePage(),
@@ -37,6 +35,12 @@ class _BotNavBarState extends State<BotNavBar> {
     const Calendar(),
     const ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     navBarItem(Widget icon) {
@@ -148,6 +152,7 @@ class _HomePageState extends State<HomePage> {
 
   //String
   String _username = '';
+  String noticeDate = '01-01-2000';
 
   //List
   List _friends = [];
@@ -179,6 +184,7 @@ class _HomePageState extends State<HomePage> {
       Map<String, dynamic> data = notice.data() as Map<String, dynamic>;
       setState(() {
         _noticeController.text = data["notice"];
+        noticeDate = data["noticeDate"] ?? '00-00-0000';
       });
     } else {
       _noticeController.text = "Add new notice";
@@ -187,10 +193,14 @@ class _HomePageState extends State<HomePage> {
 
   addNotice() {
     String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DateTime now = DateTime.now();
+    String today = "${now.day}-${now.month}-${now.year}";
     DocumentReference notice =
         FirebaseFirestore.instance.collection("notice").doc(uid);
     notice.set({
       "notice": _noticeController.text,
+      'noticeDate': today,
     });
   }
 
@@ -204,11 +214,6 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     addNotice();
     super.dispose();
-  }
-
-  Future<void> _refresh() async {
-    fetchData();
-    setState(() {});
   }
 
   @override
@@ -291,10 +296,16 @@ class _HomePageState extends State<HomePage> {
                       addNotice();
                       fetchNotice();
                     },
-                    title: "Update Note",
                     bgColor: yellow,
-                    fontColor: const Color(0xff8e7000),
                     borderColor: black,
+                    child: Text(
+                      "Update Note",
+                      style: GoogleFonts.inter(
+                        color: const Color(0xff1C504B),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -305,9 +316,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     noticeBoard() {
-      DateTime now = DateTime.now();
-      String today = formatDate("${now.day}-${now.month}-${now.year}");
-
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -327,7 +335,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              today,
+              formatDate(noticeDate),
               style: GoogleFonts.inter(
                 color: const Color(0xff8F7000),
                 fontWeight: FontWeight.w600,
@@ -415,48 +423,58 @@ class _HomePageState extends State<HomePage> {
                                 snapshot.hasData) {
                               List documents = snapshot.data!.docs;
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                child: GridView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: 2,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    //Inputs
-                                    String title = documents[index]
-                                            ["mainTitle"] ??
-                                        "Error";
-                                    bool bookmark =
-                                        documents[index]["bookmark"] ?? false;
-                                    List tasks = documents[index]["tasks"];
-                                    String noteColor =
-                                        documents[index]['noteColor'];
-                                    String docId = documents[index].id;
-                                    return MainBoardWidget(
-                                      title: title,
-                                      bookmark: bookmark,
-                                      color: noteColor,
-                                      tasks: tasks,
-                                      onTap: () => mainSlideTransition(
-                                        context,
-                                        EditBoard(
-                                          docId: docId,
-                                          noteColor: noteColor,
+                              return documents.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        'No boards found',
+                                        style: GoogleFonts.inter(color: white),
+                                      ),
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      child: GridView.builder(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: min(documents.length, 2),
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          mainAxisSpacing: 10,
+                                          crossAxisSpacing: 10,
                                         ),
-                                        (value) => fetchData(),
+                                        itemBuilder: (context, index) {
+                                          //Inputs
+                                          String title = documents[index]
+                                                  ["mainTitle"] ??
+                                              "Error";
+                                          bool bookmark = documents[index]
+                                                  ["bookmark"] ??
+                                              false;
+                                          List tasks =
+                                              documents[index]["tasks"];
+                                          String noteColor =
+                                              documents[index]['noteColor'];
+                                          String docId = documents[index].id;
+                                          return MainBoardWidget(
+                                            title: title,
+                                            bookmark: bookmark,
+                                            color: noteColor,
+                                            tasks: tasks,
+                                            onTap: () => mainSlideTransition(
+                                              context,
+                                              EditBoard(
+                                                docId: docId,
+                                                noteColor: noteColor,
+                                              ),
+                                              (value) => fetchData(),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     );
-                                  },
-                                ),
-                              );
                             }
                             return const Center(
                               child: CircularProgressIndicator(),

@@ -59,103 +59,126 @@ class _MainBoardWidgetState extends State<MainBoardWidget> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: widget.onTap,
-      child: Expanded(
-        child: Container(
-          decoration: BoxDecoration(
-            color: primaryColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-            BoxShadow(
-              color: yellow.withOpacity(0.3),
-              spreadRadius: 3,
-              blurRadius: 8,
-            )
-          ],
-          ),
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      softWrap: true,
-                      style: GoogleFonts.inter(
-                        color: primaryFontColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: widget.bookmark,
-                    child: SvgPicture.asset(
-                      "assets/pin.svg",
-                    ),
-                  ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: yellow.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 8,
+                  )
                 ],
               ),
-
-              //checkbox
-              Expanded(
-                child: ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.tasks.length,
-                  itemBuilder: (context, index) {
-                    //bool
-                    bool check = widget.tasks[index]['status'];
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 15,
-                          width: 15,
-                          margin: const EdgeInsets.all(5),
-                          // padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: check ? maroon : Colors.transparent,
-                            border: Border.all(color: maroon, width: 1.5),
-                          ),
-                          child: Icon(
-                            Icons.done,
-                            color: check ? white : Colors.transparent,
-                            weight: 2,
-                            size: 10,
-                          ),
-                        ),
-
-                        //Task text
-                        Text(
-                          widget.tasks[index]['taskTitle'].toString().length >
-                                  12
-                              ? '${widget.tasks[index]['taskTitle'].toString().substring(0, 12)}...'
-                              : widget.tasks[index]['taskTitle'],
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.title.isEmpty ? 'Untitled' : widget.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          softWrap: true,
                           style: GoogleFonts.inter(
-                            color: check ? maroon.withOpacity(0.5) : maroon,
-                            fontSize: 14,
-                            decoration: check
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                            decorationColor: maroon,
-                            decorationThickness: 2,
+                            color: widget.title.isEmpty
+                                ? primaryFontColor.withOpacity(0.75)
+                                : primaryFontColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
-              )
-            ],
+                      ),
+                      Visibility(
+                        visible: widget.bookmark,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: SvgPicture.asset(
+                            "assets/pin.svg",
+                            height: 15,
+                            fit: BoxFit.scaleDown,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  //checkbox
+                  Expanded(
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: widget.tasks.length,
+                      itemBuilder: (context, index) {
+                        //bool
+                        bool check = widget.tasks[index]['status'] ?? false;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 15,
+                              width: 15,
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: check ? maroon : Colors.transparent,
+                                border: Border.all(color: maroon, width: 1.5),
+                              ),
+                              child: Icon(
+                                Icons.done,
+                                color: check ? white : Colors.transparent,
+                                weight: 2,
+                                size: 10,
+                              ),
+                            ),
+
+                            //Task text
+                            Text(
+                              widget.tasks[index]['taskTitle']
+                                      .toString()
+                                      .isEmpty
+                                  ? 'New task'
+                                  : widget.tasks[index]['taskTitle']
+                                              .toString()
+                                              .length >
+                                          12
+                                      ? '${widget.tasks[index]['taskTitle'].toString().substring(0, 12)}...'
+                                      : widget.tasks[index]['taskTitle'],
+                              style: GoogleFonts.inter(
+                                color: check
+                                    ? primaryFontColor.withOpacity(0.5)
+                                    : primaryFontColor,
+                                fontSize: 14,
+                                decoration: check
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                decorationColor: widget.tasks[index]
+                                            ['taskTitle']
+                                        .toString()
+                                        .isEmpty
+                                    ? primaryFontColor.withOpacity(0.5)
+                                    : primaryFontColor,
+                                decorationThickness: 2,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

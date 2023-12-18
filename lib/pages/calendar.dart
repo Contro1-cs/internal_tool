@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/appbar.dart';
 import 'package:internal_tool/widgets/buttons.dart';
 import 'package:internal_tool/widgets/colors.dart';
@@ -39,13 +40,13 @@ class _CalendarState extends State<Calendar> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Center(
-          child: CustomizeButton(
-            title: "Upload data",
-            onPressed: () {
-              uploadData();
-            },
-            bgColor: const Color(0xffFCEEEE),
-            fontColor: const Color(0xffAC0806),
+          child: Text(
+            'Coming Soon!',
+            style: GoogleFonts.inter(
+              color: white,
+              fontWeight: FontWeight.bold,
+              fontSize: 25,
+            ),
           ),
         ),
       ),

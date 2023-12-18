@@ -6,7 +6,7 @@ errorSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   return ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
       content: Text(
         message,
         style: GoogleFonts.inter(color: Colors.white),
@@ -21,7 +21,7 @@ successSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   return ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
       content: Text(
         message,
         style: GoogleFonts.inter(color: Colors.black),

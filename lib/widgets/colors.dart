@@ -23,3 +23,4 @@ Color bgBlack = const Color(0xff171717);
 Color yellow = const Color(0xffFFEA79);
 Color pink = const Color(0xffFF9AE9);
 Color maroon = const Color(0xff51003F);
+Color red = const Color(0xffD85B53);

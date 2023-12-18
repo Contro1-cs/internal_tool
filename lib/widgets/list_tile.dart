@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internal_tool/widgets/checkbox.dart';
@@ -16,6 +14,7 @@ class TodoListTile extends StatefulWidget {
     required this.onCheck,
     required this.onDelete,
     required this.onSubmitted,
+    required this.onTapOutside,
   });
   final Color primaryColor;
   final Color primaryFontColor;
@@ -25,6 +24,7 @@ class TodoListTile extends StatefulWidget {
   final Function()? onCheck;
   final Function()? onDelete;
   final Function(String)? onSubmitted;
+  final Function(PointerDownEvent)? onTapOutside;
 
   @override
   State<TodoListTile> createState() => _TodoListTileState();
@@ -38,8 +38,6 @@ class _TodoListTileState extends State<TodoListTile> {
     Color primaryFontColor = widget.primaryFontColor;
     bool status = widget.status;
     Function()? onCheck = widget.onCheck;
-
-   
 
     return Container(
       width: double.infinity,
@@ -82,7 +80,7 @@ class _TodoListTileState extends State<TodoListTile> {
                       border: InputBorder.none,
                       hintText: 'New Task',
                       hintStyle: GoogleFonts.inter(
-                        color: darkGrey,
+                        color: primaryFontColor.withOpacity(0.3),
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
                       ),
@@ -97,7 +95,8 @@ class _TodoListTileState extends State<TodoListTile> {
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
-                    onSubmitted: widget.onSubmitted
+                    onSubmitted: widget.onSubmitted,
+                    onTapOutside: widget.onTapOutside,
                   ),
                 ),
               ],

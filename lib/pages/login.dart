@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       }).then((value) {
         Navigator.popUntil(context, (route) => false);
-        mainSlideTransition(context, const BotNavBar(), (then){});
+        mainSlideTransition(context, const BotNavBar(), (then) {});
       });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: bgBlack,
       appBar: customAppBar("Login"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                   : Text(
                       'Join Waitlist',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(color: black.withOpacity(0.8)),
+                      style: GoogleFonts.inter(color: darkGrey),
                     ),
             )
           ],
